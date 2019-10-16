@@ -1,8 +1,8 @@
 /// <reference types="node" />
-import * as Promise from 'bluebird';
-import * as express from 'express';
-import { Server } from 'http';
-import TypedError = require('typed-error');
+import * as Promise from "bluebird";
+import * as express from "express";
+import { Server } from "http";
+import { TypedError } from "typed-error";
 export declare class Front {
     comment: {
         create: (params: CommentRequest.Create, callback?: Callback<Comment> | undefined) => Promise<Comment>;
@@ -358,7 +358,7 @@ export declare namespace InboxRequest {
     }
     interface CreateChannel {
         inbox_id: string;
-        type: 'smtp' | 'imap' | 'twilio' | 'twitter' | 'facebook' | 'smooch' | 'intercom' | 'truly' | 'custom';
+        type: "smtp" | "imap" | "twilio" | "twitter" | "facebook" | "smooch" | "intercom" | "truly" | "custom";
         settings: {
             webhook_url: string;
         };

@@ -7,57 +7,62 @@ const express = require("express");
 const _ = require("lodash");
 const querystring = require("querystring");
 const request = require("request-promise");
-const TypedError = require("typed-error");
-const URL = 'https://api2.frontapp.com';
+const typed_error_1 = require("typed-error");
+const URL = "https://api2.frontapp.com";
 class Front {
     constructor(apiKey, apiSecret) {
         this.comment = {
-            create: (params, callback) => this.httpCall({ method: 'POST', path: 'conversations/<conversation_id>/comments' }, params, callback),
-            get: (params, callback) => this.httpCall({ method: 'GET', path: 'comments/<comment_id>' }, params, callback),
-            listMentions: (params, callback) => this.httpCall({ method: 'GET', path: 'comments/<comment_id>/mentions' }, params, callback),
+            create: (params, callback) => this.httpCall({ method: "POST", path: "conversations/<conversation_id>/comments" }, params, callback),
+            get: (params, callback) => this.httpCall({ method: "GET", path: "comments/<comment_id>" }, params, callback),
+            listMentions: (params, callback) => this.httpCall({ method: "GET", path: "comments/<comment_id>/mentions" }, params, callback),
         };
         this.contact = {
-            create: (params, callback) => this.httpCall({ method: 'POST', path: 'contacts' }, params, callback),
-            delete: (params, callback) => this.httpCall({ method: 'DELETE', path: 'contacts/<contact_id>' }, params, callback),
-            get: (params, callback) => this.httpCall({ method: 'GET', path: 'contacts/<contact_id>' }, params, callback),
-            update: (params, callback) => this.httpCall({ method: 'PATCH', path: 'contacts/<contact_id>' }, params, callback),
+            create: (params, callback) => this.httpCall({ method: "POST", path: "contacts" }, params, callback),
+            delete: (params, callback) => this.httpCall({ method: "DELETE", path: "contacts/<contact_id>" }, params, callback),
+            get: (params, callback) => this.httpCall({ method: "GET", path: "contacts/<contact_id>" }, params, callback),
+            update: (params, callback) => this.httpCall({ method: "PATCH", path: "contacts/<contact_id>" }, params, callback),
         };
         this.conversation = {
-            get: (params, callback) => this.httpCall({ method: 'GET', path: 'conversations/<conversation_id>' }, params, callback),
-            list: (params, callback) => this.httpCall({ method: 'GET', path: 'conversations[q:page_token:limit]' }, params, callback),
-            listComments: (params, callback) => this.httpCall({ method: 'GET',
-                path: 'conversations/<conversation_id>/comments' }, params, callback),
-            listFollowers: (params, callback) => this.httpCall({ method: 'GET', path: 'conversations/<conversation_id>/followers' }, params, callback),
-            listInboxes: (params, callback) => this.httpCall({ method: 'GET', path: 'conversations/<conversation_id>/inboxes' }, params, callback),
-            listMessages: (params, callback) => this.httpCall({ method: 'GET', path: 'conversations/<conversation_id>/messages[page_token:limit]' }, params, callback),
-            listRecent: (callback) => this.httpCall({ method: 'GET', path: 'conversations' }, null, callback),
-            update: (params, callback) => this.httpCall({ method: 'PATCH', path: `conversations/${params.conversation_id}` }, _.omit(params, ['conversation_id']), callback),
+            get: (params, callback) => this.httpCall({ method: "GET", path: "conversations/<conversation_id>" }, params, callback),
+            list: (params, callback) => this.httpCall({ method: "GET", path: "conversations[q:page_token:limit]" }, params, callback),
+            listComments: (params, callback) => this.httpCall({ method: "GET", path: "conversations/<conversation_id>/comments" }, params, callback),
+            listFollowers: (params, callback) => this.httpCall({ method: "GET", path: "conversations/<conversation_id>/followers" }, params, callback),
+            listInboxes: (params, callback) => this.httpCall({ method: "GET", path: "conversations/<conversation_id>/inboxes" }, params, callback),
+            listMessages: (params, callback) => this.httpCall({
+                method: "GET",
+                path: "conversations/<conversation_id>/messages[page_token:limit]",
+            }, params, callback),
+            listRecent: (callback) => this.httpCall({ method: "GET", path: "conversations" }, null, callback),
+            update: (params, callback) => this.httpCall({ method: "PATCH", path: `conversations/${params.conversation_id}` }, _.omit(params, ["conversation_id"]), callback),
         };
         this.inbox = {
-            create: (params, callback) => this.httpCall({ method: 'POST', path: 'inboxes' }, params, callback),
-            createChannel: (params, callback) => this.httpCall({ method: 'POST', path: 'inboxes/<inbox_id>/channels' }, params, callback),
-            get: (params, callback) => this.httpCall({ method: 'GET', path: 'inboxes/<inbox_id>' }, params, callback),
-            list: (callback) => this.httpCall({ method: 'GET', path: 'inboxes' }, null, callback),
-            listChannels: (params, callback) => this.httpCall({ method: 'GET', path: 'inboxes/<inbox_id>/channels' }, params, callback),
-            listConversations: (params, callback) => this.httpCall({ method: 'GET',
-                path: 'inboxes/<inbox_id>/conversations[q:page_token:limit]' }, params, callback),
-            listTeammates: (params, callback) => this.httpCall({ method: 'GET', path: 'inboxes/<inbox_id>/teammates' }, params, callback),
+            create: (params, callback) => this.httpCall({ method: "POST", path: "inboxes" }, params, callback),
+            createChannel: (params, callback) => this.httpCall({ method: "POST", path: "inboxes/<inbox_id>/channels" }, params, callback),
+            get: (params, callback) => this.httpCall({ method: "GET", path: "inboxes/<inbox_id>" }, params, callback),
+            list: (callback) => this.httpCall({ method: "GET", path: "inboxes" }, null, callback),
+            listChannels: (params, callback) => this.httpCall({ method: "GET", path: "inboxes/<inbox_id>/channels" }, params, callback),
+            listConversations: (params, callback) => this.httpCall({
+                method: "GET",
+                path: "inboxes/<inbox_id>/conversations[q:page_token:limit]",
+            }, params, callback),
+            listTeammates: (params, callback) => this.httpCall({ method: "GET", path: "inboxes/<inbox_id>/teammates" }, params, callback),
         };
         this.message = {
-            get: (params, callback) => this.httpCall({ method: 'GET', path: 'messages/<message_id>' }, params, callback),
-            receiveCustom: (params, callback) => this.httpCall({ method: 'POST', path: 'channels/<channel_id>/incoming_messages' }, params, callback),
-            reply: (params, callback) => this.httpCall({ method: 'POST', path: 'conversations/<conversation_id>/messages' }, params, callback),
-            send: (params, callback) => this.httpCall({ method: 'POST',
-                path: 'channels/<channel_id>/messages' }, params, callback),
+            get: (params, callback) => this.httpCall({ method: "GET", path: "messages/<message_id>" }, params, callback),
+            receiveCustom: (params, callback) => this.httpCall({ method: "POST", path: "channels/<channel_id>/incoming_messages" }, params, callback),
+            reply: (params, callback) => this.httpCall({ method: "POST", path: "conversations/<conversation_id>/messages" }, params, callback),
+            send: (params, callback) => this.httpCall({ method: "POST", path: "channels/<channel_id>/messages" }, params, callback),
         };
         this.teammate = {
-            get: (params, callback) => this.httpCall({ method: 'GET', path: 'teammates/<teammate_id>' }, params, callback),
-            list: (callback) => this.httpCall({ method: 'GET', path: 'teammates' }, null, callback),
-            update: (params, callback) => this.httpCall({ method: 'PATCH', path: 'teammates/<teammate_id>' }, params, callback),
+            get: (params, callback) => this.httpCall({ method: "GET", path: "teammates/<teammate_id>" }, params, callback),
+            list: (callback) => this.httpCall({ method: "GET", path: "teammates" }, null, callback),
+            update: (params, callback) => this.httpCall({ method: "PATCH", path: "teammates/<teammate_id>" }, params, callback),
         };
         this.topic = {
-            listConversations: (params, callback) => this.httpCall({ method: 'GET',
-                path: 'topics/<topic_id>/conversations[q:page_token:limit]' }, params, callback),
+            listConversations: (params, callback) => this.httpCall({
+                method: "GET",
+                path: "topics/<topic_id>/conversations[q:page_token:limit]",
+            }, params, callback),
         };
         this.apiKey = apiKey;
         if (apiSecret) {
@@ -70,9 +75,10 @@ class Front {
         const eventQueue = [];
         const requestEvent = () => {
             const eventId = eventQueue[0];
-            this.httpCall({ path: 'events/<event_id>', method: 'GET' }, {
-                event_id: eventId
-            }).asCallback(callback)
+            this.httpCall({ path: "events/<event_id>", method: "GET" }, {
+                event_id: eventId,
+            })
+                .asCallback(callback)
                 .finally(() => {
                 eventQueue.shift();
                 if (eventQueue.length > 0) {
@@ -87,15 +93,15 @@ class Front {
             }
         };
         if (!this.apiSecret) {
-            throw new Error('No secret key registered');
+            throw new Error("No secret key registered");
         }
         if (!opts || (opts.server && opts.port) || (!opts.server && !opts.port)) {
-            throw new Error('Pass either an Express instance or a port to listen on');
+            throw new Error("Pass either an Express instance or a port to listen on");
         }
-        if (opts.port && typeof opts.port !== 'number') {
-            throw new Error('`port` must be a number');
+        if (opts.port && typeof opts.port !== "number") {
+            throw new Error("`port` must be a number");
         }
-        const hookPath = opts.hookPath || '/fronthook';
+        const hookPath = opts.hookPath || "/fronthook";
         if (opts.server) {
             listener = opts.server;
         }
@@ -106,11 +112,12 @@ class Front {
             httpServer = listener.listen(opts.port);
         }
         listener.post(hookPath, (req, res) => {
-            const eventPreview = (typeof (req.body) === 'string') ? JSON.parse(req.body) : req.body;
-            const XFrontSignature = req.get('X-Front-Signature');
-            if (!XFrontSignature || !this.validateEventSignature(eventPreview, XFrontSignature)) {
+            const eventPreview = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+            const XFrontSignature = req.get("X-Front-Signature");
+            if (!XFrontSignature ||
+                !this.validateEventSignature(eventPreview, XFrontSignature)) {
                 res.sendStatus(401);
-                throw new Error('Event Signature does not match registered secret');
+                throw new Error("Event Signature does not match registered secret");
             }
             res.sendStatus(200);
             addToEventQueue(eventPreview.id);
@@ -118,8 +125,8 @@ class Front {
         return httpServer;
     }
     getFromLink(url, callback) {
-        const path = url.replace(URL, '').replace(/^\//, '');
-        return this.httpCall({ method: 'GET', path }, null, callback);
+        const path = url.replace(URL, "").replace(/^\//, "");
+        return this.httpCall({ method: "GET", path }, null, callback);
     }
     httpCall(details, params, callback, retries = 0) {
         const url = `${URL}/${this.formatPath(details.path, params)}`;
@@ -127,13 +134,15 @@ class Front {
         const requestOpts = {
             body,
             headers: {
-                Authorization: `Bearer ${this.apiKey}`
+                Authorization: `Bearer ${this.apiKey}`,
             },
             json: true,
             method: details.method,
-            url
+            url,
         };
-        return request(requestOpts).promise().catch((error) => {
+        return request(requestOpts)
+            .promise()
+            .catch((error) => {
             if (error.statusCode >= 500 && retries < 5) {
                 return Promise.delay(300).then(() => {
                     return this.httpCall(details, params, callback, retries + 1);
@@ -142,7 +151,8 @@ class Front {
             const frontError = new FrontError(error);
             frontError.message += ` at ${url} with body ${JSON.stringify(body)}`;
             throw frontError;
-        }).asCallback(callback);
+        })
+            .asCallback(callback);
     }
     formatPath(path, data = {}) {
         let newPath = path;
@@ -153,7 +163,7 @@ class Front {
             }
         };
         reSearch(/<(.*?)>/g, (mandatoryTags) => {
-            _.map(mandatoryTags, (tag) => {
+            _.map(mandatoryTags, tag => {
                 const tagName = tag.substring(1, tag.length - 1);
                 if (!data[tagName]) {
                     throw new Error(`Tag ${tag} not found in parameter data`);
@@ -166,27 +176,28 @@ class Front {
                 throw new Error(`Front endpoint ${path} is incorrectly defined`);
             }
             const trimmedTags = optionalTags[0];
-            const tags = trimmedTags.substring(1, trimmedTags.length - 1).split(':');
+            const tags = trimmedTags.substring(1, trimmedTags.length - 1).split(":");
             const queryTags = {};
-            newPath = newPath.replace(trimmedTags, '');
-            _.each(tags, (tag) => {
-                if ((tag !== 'q') && data[tag]) {
+            newPath = newPath.replace(trimmedTags, "");
+            _.each(tags, tag => {
+                if (tag !== "q" && data[tag]) {
                     queryTags[tag] = data[tag];
                 }
             });
             newPath = `${newPath}?${querystring.stringify(queryTags)}`;
-            if (_.includes(tags, 'q')) {
+            if (_.includes(tags, "q")) {
                 newPath += `&${data.q}`;
             }
         });
         return newPath;
     }
     validateEventSignature(data, signature) {
-        let hash = '';
+        let hash = "";
         try {
-            hash = crypto.createHmac('sha1', this.apiSecret)
+            hash = crypto
+                .createHmac("sha1", this.apiSecret)
                 .update(JSON.stringify(data))
-                .digest('base64');
+                .digest("base64");
         }
         catch (err) {
             return false;
@@ -195,12 +206,12 @@ class Front {
     }
 }
 exports.Front = Front;
-class FrontError extends TypedError {
+class FrontError extends typed_error_1.TypedError {
     constructor(error) {
         super(error);
         const frontError = error.error._error;
         if (frontError) {
-            _.each(['status', 'title', 'message', 'details'], (key) => {
+            _.each(["status", "title", "message", "details"], key => {
                 if (frontError[key]) {
                     this[key] = frontError[key];
                 }
@@ -209,6 +220,5 @@ class FrontError extends TypedError {
     }
 }
 exports.FrontError = FrontError;
-;
 
 //# sourceMappingURL=index.js.map
