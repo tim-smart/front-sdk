@@ -155,7 +155,7 @@ class Front {
             frontError.message += ` at ${url} with body ${JSON.stringify(body)}`;
             throw frontError;
         })
-            .asCallback(callback);
+            .then(r => callback && callback(null, r), err => callback && callback(err, null));
     }
     formatPath(path, data = {}) {
         let newPath = path;
