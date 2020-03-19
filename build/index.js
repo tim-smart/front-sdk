@@ -5,7 +5,7 @@ const crypto = require("crypto");
 const express = require("express");
 const _ = require("lodash");
 const querystring = require("querystring");
-const request = require("request-promise");
+const request = require("request-promise-native");
 const typed_error_1 = require("typed-error");
 const URL = "https://api2.frontapp.com";
 class Front {

@@ -21,7 +21,7 @@ import * as express from "express";
 import { Server } from "http";
 import * as _ from "lodash";
 import * as querystring from "querystring";
-import * as request from "request-promise";
+import * as request from "request-promise-native";
 import { TypedError } from "typed-error";
 
 const URL = "https://api2.frontapp.com";
