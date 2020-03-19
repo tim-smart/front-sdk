@@ -1,5 +1,4 @@
 /// <reference types="node" />
-import * as Promise from "bluebird";
 import * as express from "express";
 import { Server } from "http";
 import { TypedError } from "typed-error";

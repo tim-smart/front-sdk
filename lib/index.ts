@@ -15,7 +15,6 @@ limitations under the License.
 */
 /* tslint:disable: max-classes-per-file */
 
-import * as Promise from "bluebird";
 import * as bodyParser from "body-parser";
 import * as crypto from "crypto";
 import * as express from "express";
@@ -347,7 +346,10 @@ export class Front {
           event_id: eventId,
         },
       )
-        .asCallback(callback)
+        .then(
+          r => callback(null, r),
+          err => callback(err),
+        )
         .finally(() => {
           // Get another event if there is one, else finish.
           eventQueue.shift();
@@ -452,7 +454,11 @@ export class Front {
         // Retry a couple of times if we get 5XX errors, as Front
         // can get quite unreliable sometimes
         if (error.statusCode >= 500 && retries < 5) {
-          return Promise.delay(300).then(() => {
+          return new Promise(r => {
+            setTimeout(() => {
+              r();
+            }, 300);
+          }).then(() => {
             return this.httpCall(details, params, callback, retries + 1);
           });
         }

@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Promise = require("bluebird");
 const bodyParser = require("body-parser");
 const crypto = require("crypto");
 const express = require("express");
@@ -78,7 +77,7 @@ class Front {
             this.httpCall({ path: "events/<event_id>", method: "GET" }, {
                 event_id: eventId,
             })
-                .asCallback(callback)
+                .then(r => callback(null, r), err => callback(err))
                 .finally(() => {
                 eventQueue.shift();
                 if (eventQueue.length > 0) {
@@ -144,7 +143,11 @@ class Front {
             .promise()
             .catch((error) => {
             if (error.statusCode >= 500 && retries < 5) {
-                return Promise.delay(300).then(() => {
+                return new Promise(r => {
+                    setTimeout(() => {
+                        r();
+                    }, 300);
+                }).then(() => {
                     return this.httpCall(details, params, callback, retries + 1);
                 });
             }
