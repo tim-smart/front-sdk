@@ -1,24 +1,24 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var chai = require("chai");
-var ChaiAsPromised = require("chai-as-promised");
-var express = require("express");
+const chai = require("chai");
+const ChaiAsPromised = require("chai-as-promised");
+const express = require("express");
 require("mocha");
-var index_1 = require("../lib/index");
-var keeper_1 = require("./keeper");
+const index_1 = require("../lib/index");
+const keeper_1 = require("./keeper");
 chai.use(ChaiAsPromised);
 chai.should();
 describe('Events', function () {
-    var vaultKeeper = keeper_1.getKeeper();
-    var keys = vaultKeeper.keys;
-    var frontInst;
+    const vaultKeeper = keeper_1.getKeeper();
+    const keys = vaultKeeper.keys;
+    let frontInst;
     before(function () {
         frontInst = new index_1.Front(keys.apiKey, 'madeupkey');
     });
     it('should fail as no secret key is set', function (done) {
-        var brokenInst = new index_1.Front(keys.apiKey);
+        const brokenInst = new index_1.Front(keys.apiKey);
         try {
-            brokenInst.registerEvents({ port: 1234 }, function () {
+            brokenInst.registerEvents({ port: 1234 }, () => {
                 done('Should not have received an event');
             });
         }
@@ -29,7 +29,7 @@ describe('Events', function () {
     });
     it('should fail as neither the port or server instance are set', function (done) {
         try {
-            frontInst.registerEvents({}, function () {
+            frontInst.registerEvents({}, () => {
                 done('Should not have received an event');
             });
         }
@@ -40,7 +40,7 @@ describe('Events', function () {
     });
     it('should fail as both the port or server instance are set', function (done) {
         try {
-            frontInst.registerEvents({ server: express(), port: 1234 }, function () {
+            frontInst.registerEvents({ server: express(), port: 1234 }, () => {
                 done('Should not have received an event');
             });
         }
@@ -50,7 +50,7 @@ describe('Events', function () {
         }
     });
     it('should start a new server on port 1234 then exit', function (done) {
-        var expressInst = frontInst.registerEvents({ port: 1234 }, function () {
+        const expressInst = frontInst.registerEvents({ port: 1234 }, () => {
             done('Should not have received an event');
         });
         if (expressInst) {
@@ -64,9 +64,9 @@ describe('Events', function () {
         }
     });
     it('should listen on existing server then exit', function (done) {
-        var expressInst = express();
-        var httpServer = expressInst.listen(1234);
-        frontInst.registerEvents({ server: expressInst }, function () {
+        const expressInst = express();
+        const httpServer = expressInst.listen(1234);
+        frontInst.registerEvents({ server: expressInst }, () => {
             done('Should not have received an event');
         });
         setTimeout(function () {

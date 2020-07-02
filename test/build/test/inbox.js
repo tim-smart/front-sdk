@@ -1,20 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var chai = require("chai");
-var ChaiAsPromised = require("chai-as-promised");
-var ChaiString = require("chai-string");
-var _ = require("lodash");
+const chai = require("chai");
+const ChaiAsPromised = require("chai-as-promised");
+const ChaiString = require("chai-string");
+const _ = require("lodash");
 require("mocha");
-var index_1 = require("../lib/index");
-var keeper_1 = require("./keeper");
+const index_1 = require("../lib/index");
+const keeper_1 = require("./keeper");
 chai.use(ChaiAsPromised);
 chai.use(ChaiString);
 chai.should();
 describe('Inboxes', function () {
-    var apiUrl = 'https://api2.frontapp.com';
-    var vaultKeeper = keeper_1.getKeeper();
-    var keys = vaultKeeper.keys;
-    var frontInst;
+    const apiUrl = 'https://api2.frontapp.com';
+    const vaultKeeper = keeper_1.getKeeper();
+    const keys = vaultKeeper.keys;
+    let frontInst;
     before(function () {
         frontInst = new index_1.Front(keys.apiKey);
     });
@@ -23,11 +23,11 @@ describe('Inboxes', function () {
             response._pagination.should.exist;
             response._pagination.should.include.keys('next', 'prev');
             response._links.should.exist;
-            response._links.self.should.startsWith(apiUrl + "/inboxes");
+            response._links.self.should.startsWith(`${apiUrl}/inboxes`);
             response._results.length.should.be.gt(1);
-            var inbox = response._results[0];
+            const inbox = response._results[0];
             inbox.should.include.keys('_links', 'id', 'address', 'send_as', 'name', 'type');
-            var foundInbox = _.find(response._results, ['name', keys.testInbox]);
+            const foundInbox = _.find(response._results, ['name', keys.testInbox]);
             if (!foundInbox) {
                 throw new Error('Test inbox could not be found');
             }
@@ -41,7 +41,7 @@ describe('Inboxes', function () {
         return frontInst.inbox.get({ inbox_id: keys.testInboxId }).then(function (response) {
             response._links.should.exist;
             response._links.should.include.keys('self', 'related');
-            response._links.self.should.startsWith(apiUrl + "/inboxes/" + keys.testInboxId);
+            response._links.self.should.startsWith(`${apiUrl}/inboxes/${keys.testInboxId}`);
             response._links.related.should.include.keys('channels', 'conversations', 'teammates');
             response.id.should.equal(keys.testInboxId);
             response.name.should.equal(keys.testInbox);
@@ -58,10 +58,10 @@ describe('Inboxes', function () {
             response._pagination.should.exist;
             response._pagination.should.include.keys('next', 'prev');
             response._links.should.exist;
-            response._links.self.should.startsWith(apiUrl + "/inboxes/" + keys.testInboxId + "/channels");
+            response._links.self.should.startsWith(`${apiUrl}/inboxes/${keys.testInboxId}/channels`);
             response._results.should.exist;
             response._results.length.should.be.gt(1);
-            var testChannel = _.find(response._results, ['id', keys.testChannel]);
+            const testChannel = _.find(response._results, ['id', keys.testChannel]);
             if (!testChannel) {
                 throw new Error('Channel for test inbox could not be found');
             }
@@ -76,7 +76,7 @@ describe('Inboxes', function () {
             response._pagination.should.exist;
             response._pagination.should.include.keys('next', 'prev');
             response._links.should.exist;
-            response._links.self.should.startsWith(apiUrl + "/inboxes/" + keys.testInboxId + "/conversations");
+            response._links.self.should.startsWith(`${apiUrl}/inboxes/${keys.testInboxId}/conversations`);
             response._results.should.exist;
             response._results.length.should.be.gt(1);
         });
@@ -92,7 +92,7 @@ describe('Inboxes', function () {
             response._pagination.should.exist;
             response._pagination.should.include.keys('next', 'prev');
             response._links.should.exist;
-            response._links.self.should.startWith(apiUrl + "/inboxes/" + keys.testInboxId + "/conversations");
+            response._links.self.should.startWith(`${apiUrl}/inboxes/${keys.testInboxId}/conversations`);
             response._links.self.should.include('q[statuses][]=unassigned&q[statuses][]=assigned');
             response._results.should.exist;
             response._results.length.should.be.gt(1);
@@ -106,10 +106,10 @@ describe('Inboxes', function () {
             response._pagination.should.exist;
             response._pagination.should.include.keys('next', 'prev');
             response._links.should.exist;
-            response._links.self.should.startWith(apiUrl + "/inboxes/" + keys.testInboxId + "/teammates");
+            response._links.self.should.startWith(`${apiUrl}/inboxes/${keys.testInboxId}/teammates`);
             response._results.should.exist;
             response._results.length.should.be.gte(1);
-            var testAuthor = _.find(response._results, ['username', keys.testAuthor]);
+            const testAuthor = _.find(response._results, ['username', keys.testAuthor]);
             if (!testAuthor) {
                 throw new Error('Author for test inbox could not be found');
             }

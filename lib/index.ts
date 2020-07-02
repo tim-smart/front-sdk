@@ -15,13 +15,13 @@ limitations under the License.
 */
 /* tslint:disable: max-classes-per-file */
 
+import axios, { AxiosRequestConfig } from "axios";
 import * as bodyParser from "body-parser";
 import * as crypto from "crypto";
 import * as express from "express";
 import { Server } from "http";
 import * as _ from "lodash";
 import * as querystring from "querystring";
-import * as request from "request-promise-native";
 import { TypedError } from "typed-error";
 
 const URL = "https://api2.frontapp.com";
@@ -347,8 +347,8 @@ export class Front {
         },
       )
         .then(
-          r => callback(null, r),
-          err => callback(err),
+          (r) => callback(null, r),
+          (err) => callback(err),
         )
         .finally(() => {
           // Get another event if there is one, else finish.
@@ -436,25 +436,30 @@ export class Front {
   ): Promise<any | void> {
     const url = `${URL}/${this.formatPath(details.path, params)}`;
     const body = params || {};
+    const mixin = ["POST", "PUT", "DELETE", "PATCH"].includes(details.method)
+      ? { data: body }
+      : { qs: body };
 
-    const requestOpts = {
-      body,
+    const requestOpts: AxiosRequestConfig = {
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
       },
-      json: true,
-      method: details.method,
+      method: details.method as AxiosRequestConfig["method"],
       url,
+      ...mixin,
     };
 
     // Make the request.
-    return request(requestOpts)
-      .promise()
+    return axios(requestOpts)
+      .then(
+        (r) => callback && callback(null, r.data),
+        (err) => callback && callback(err, null),
+      )
       .catch((error: any) => {
         // Retry a couple of times if we get 5XX errors, as Front
         // can get quite unreliable sometimes
         if (error.statusCode >= 500 && retries < 5) {
-          return new Promise(r => {
+          return new Promise((r) => {
             setTimeout(() => {
               r();
             }, 300);
@@ -467,11 +472,7 @@ export class Front {
         const frontError = new FrontError(error);
         frontError.message += ` at ${url} with body ${JSON.stringify(body)}`;
         throw frontError;
-      })
-      .then(
-        r => callback && callback(null, r),
-        err => callback && callback(err, null),
-      );
+      });
   }
 
   private formatPath(path: string, data: RequestData = {}): string {
@@ -488,7 +489,7 @@ export class Front {
 
     // Find the mandatories. If we don't get them, then we error.
     reSearch(/<(.*?)>/g, (mandatoryTags: RegExpMatchArray) => {
-      _.map(mandatoryTags, tag => {
+      _.map(mandatoryTags, (tag) => {
         const tagName = tag.substring(1, tag.length - 1);
         if (!data[tagName]) {
           throw new Error(`Tag ${tag} not found in parameter data`);
@@ -512,7 +513,7 @@ export class Front {
       // Ensure we remove the optional signature.
       // QueryString any tags that aren't the search string.
       newPath = newPath.replace(trimmedTags, "");
-      _.each(tags, tag => {
+      _.each(tags, (tag) => {
         if (tag !== "q" && data[tag]) {
           queryTags[tag] = data[tag];
         }
@@ -582,7 +583,7 @@ export class FrontError extends TypedError {
 
     const frontError = error.error._error;
     if (frontError) {
-      _.each(["status", "title", "message", "details"], key => {
+      _.each(["status", "title", "message", "details"], (key) => {
         if (frontError[key]) {
           this[key] = frontError[key];
         }

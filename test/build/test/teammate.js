@@ -1,18 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var chai = require("chai");
-var ChaiAsPromised = require("chai-as-promised");
+const chai = require("chai");
+const ChaiAsPromised = require("chai-as-promised");
 require("mocha");
-var lib_1 = require("../lib");
-var keeper_1 = require("./keeper");
+const lib_1 = require("../lib");
+const keeper_1 = require("./keeper");
 chai.use(ChaiAsPromised);
 chai.should();
 describe('Teammates', function () {
-    var vaultKeeper = keeper_1.getKeeper();
-    var keys = vaultKeeper.keys;
-    var frontInst;
-    var teammateId;
-    var priorName;
+    const vaultKeeper = keeper_1.getKeeper();
+    const keys = vaultKeeper.keys;
+    let frontInst;
+    let teammateId;
+    let priorName;
     before(function () {
         frontInst = new lib_1.Front(keys.apiKey);
     });

@@ -1,17 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var chai = require("chai");
-var ChaiAsPromised = require("chai-as-promised");
+const chai = require("chai");
+const ChaiAsPromised = require("chai-as-promised");
 require("mocha");
-var index_1 = require("../lib/index");
-var keeper_1 = require("./keeper");
+const index_1 = require("../lib/index");
+const keeper_1 = require("./keeper");
 chai.use(ChaiAsPromised);
 chai.should();
 describe('Contacts', function () {
-    var vaultKeeper = keeper_1.getKeeper();
-    var keys = vaultKeeper.keys;
-    var frontInst;
-    var contactId;
+    const vaultKeeper = keeper_1.getKeeper();
+    const keys = vaultKeeper.keys;
+    let frontInst;
+    let contactId;
     before(function () {
         frontInst = new index_1.Front(keys.apiKey);
     });
@@ -52,7 +52,7 @@ describe('Contacts', function () {
     it('should fail to find the contact deleted above', function () {
         return frontInst.contact.get({
             contact_id: contactId,
-        }).catch(index_1.FrontError, function (error) {
+        }).catch(index_1.FrontError, (error) => {
             error.name.should.eq('FrontError');
             error.status.should.eq(404);
         });

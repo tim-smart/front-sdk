@@ -1,23 +1,23 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Promise = require("bluebird");
-var chai = require("chai");
-var ChaiAsPromised = require("chai-as-promised");
+const Promise = require("bluebird");
+const chai = require("chai");
+const ChaiAsPromised = require("chai-as-promised");
 require("mocha");
-var index_1 = require("../lib/index");
-var keeper_1 = require("./keeper");
+const index_1 = require("../lib/index");
+const keeper_1 = require("./keeper");
 chai.use(ChaiAsPromised);
 chai.should();
 describe('Messages', function () {
-    var vaultKeeper = keeper_1.getKeeper();
-    var keys = vaultKeeper.keys;
-    var recipient = 'testbot';
-    var testText = "Please ignore";
-    var frontInst;
+    const vaultKeeper = keeper_1.getKeeper();
+    const keys = vaultKeeper.keys;
+    const recipient = 'testbot';
+    const testText = `Please ignore`;
+    let frontInst;
     before(function () {
         frontInst = new index_1.Front(keys.apiKey);
-        keys.testMessageSubject = "Front SDK Subject Test " + Date().toString();
-        keys.testMessageResponse = "Test Response " + Date().toString();
+        keys.testMessageSubject = `Front SDK Subject Test ${Date().toString()}`;
+        keys.testMessageResponse = `Test Response ${Date().toString()}`;
     });
     it('should send a test message, checking for a conversation reference', function () {
         if (!keys.testAuthorId) {
@@ -53,7 +53,7 @@ describe('Messages', function () {
         if (!keys.testMessageConvRef) {
             throw new Error('Cannot find test message conversation reference');
         }
-        return frontInst.conversation.get({ conversation_id: "alt:ref:" + keys.testMessageConvRef })
+        return frontInst.conversation.get({ conversation_id: `alt:ref:${keys.testMessageConvRef}` })
             .then(function (response) {
             response._links.should.exist;
             response._links.should.have.keys('self', 'related');
@@ -91,7 +91,7 @@ describe('Messages', function () {
         return frontInst.message.reply({
             body: keys.testMessageResponse,
             conversation_id: keys.testConversationId,
-        }).then(function (response) {
+        }).then((response) => {
             response.should.exist;
         });
     });

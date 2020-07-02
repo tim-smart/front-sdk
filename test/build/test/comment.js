@@ -1,18 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var chai = require("chai");
-var ChaiAsPromised = require("chai-as-promised");
-var _ = require("lodash");
+const chai = require("chai");
+const ChaiAsPromised = require("chai-as-promised");
+const _ = require("lodash");
 require("mocha");
-var index_1 = require("../lib/index");
-var keeper_1 = require("./keeper");
+const index_1 = require("../lib/index");
+const keeper_1 = require("./keeper");
 chai.use(ChaiAsPromised);
 chai.should();
 describe('Comments', function () {
-    var vaultKeeper = keeper_1.getKeeper();
-    var keys = vaultKeeper.keys;
-    var testComment = "Test comment " + Date().toString() + " for @" + keys.testAuthor;
-    var frontInst;
+    const vaultKeeper = keeper_1.getKeeper();
+    const keys = vaultKeeper.keys;
+    const testComment = `Test comment ${Date().toString()} for @${keys.testAuthor}`;
+    let frontInst;
     before(function () {
         frontInst = new index_1.Front(keys.apiKey);
     });

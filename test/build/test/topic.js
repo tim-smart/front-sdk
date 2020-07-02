@@ -1,19 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var GithubApi = require("@octokit/rest");
-var Promise = require("bluebird");
-var chai = require("chai");
-var ChaiAsPromised = require("chai-as-promised");
+const GithubApi = require("@octokit/rest");
+const Promise = require("bluebird");
+const chai = require("chai");
+const ChaiAsPromised = require("chai-as-promised");
 require("mocha");
-var index_1 = require("../lib/index");
-var keeper_1 = require("./keeper");
+const index_1 = require("../lib/index");
+const keeper_1 = require("./keeper");
 chai.use(ChaiAsPromised);
 chai.should();
 describe('Topics', function () {
-    var vaultKeeper = keeper_1.getKeeper();
-    var keys = vaultKeeper.keys;
-    var frontInst;
-    var githubInst;
+    const vaultKeeper = keeper_1.getKeeper();
+    const keys = vaultKeeper.keys;
+    let frontInst;
+    let githubInst;
     before(function () {
         frontInst = new index_1.Front(keys.apiKey);
         githubInst = new GithubApi({
@@ -27,9 +27,9 @@ describe('Topics', function () {
         });
     });
     it('should return an empty results list for an invalid topic', function () {
-        return frontInst.topic.listConversations({ topic_id: 'top_xxxxx' }).then(function () {
+        return frontInst.topic.listConversations({ topic_id: 'top_xxxxx' }).then(() => {
             throw new Error('Received a result for an invalid topic');
-        }).catch(index_1.FrontError, function (error) {
+        }).catch(index_1.FrontError, (error) => {
             error.name.should.eq('FrontError');
             error.status.should.eq(404);
         });
@@ -39,20 +39,20 @@ describe('Topics', function () {
             number: keys.testTopicIssue.issue,
             owner: keys.testTopicIssue.owner,
             repo: keys.testTopicIssue.repo,
-        }).then(function (issue) {
+        }).then((issue) => {
             issue.data.body.should.exist;
-            var bodyText = issue.data.body;
-            var frontTopic = bodyText.match(/\[.*]\((.*)\)/m)[1];
-            var topicId = frontTopic.slice(frontTopic.lastIndexOf('/') + 1);
+            const bodyText = issue.data.body;
+            const frontTopic = bodyText.match(/\[.*]\((.*)\)/m)[1];
+            const topicId = frontTopic.slice(frontTopic.lastIndexOf('/') + 1);
             return frontInst.topic.listConversations({ topic_id: topicId });
-        }).then(function (response) {
+        }).then((response) => {
             response._pagination.should.exist;
             response._pagination.should.have.keys('prev', 'next');
             response._links.should.exist;
             response._links.should.have.key('self');
             response._results.should.exist;
             response._results.length.should.eq(1);
-            var conversation = response._results[0];
+            const conversation = response._results[0];
             conversation._links.should.exist;
             conversation._links.should.have.keys('self', 'related');
             conversation.id.should.eq(keys.testConversationId);

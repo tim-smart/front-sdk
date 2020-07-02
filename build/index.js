@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const axios_1 = require("axios");
 const bodyParser = require("body-parser");
 const crypto = require("crypto");
 const express = require("express");
 const _ = require("lodash");
 const querystring = require("querystring");
-const request = require("request-promise-native");
 const typed_error_1 = require("typed-error");
 const URL = "https://api2.frontapp.com";
 class Front {
@@ -77,7 +77,7 @@ class Front {
             this.httpCall({ path: "events/<event_id>", method: "GET" }, {
                 event_id: eventId,
             })
-                .then(r => callback(null, r), err => callback(err))
+                .then((r) => callback(null, r), (err) => callback(err))
                 .finally(() => {
                 eventQueue.shift();
                 if (eventQueue.length > 0) {
@@ -130,20 +130,17 @@ class Front {
     httpCall(details, params, callback, retries = 0) {
         const url = `${URL}/${this.formatPath(details.path, params)}`;
         const body = params || {};
-        const requestOpts = {
-            body,
-            headers: {
+        const mixin = ["POST", "PUT", "DELETE", "PATCH"].includes(details.method)
+            ? { data: body }
+            : { qs: body };
+        const requestOpts = Object.assign({ headers: {
                 Authorization: `Bearer ${this.apiKey}`,
-            },
-            json: true,
-            method: details.method,
-            url,
-        };
-        return request(requestOpts)
-            .promise()
+            }, method: details.method, url }, mixin);
+        return axios_1.default(requestOpts)
+            .then((r) => callback && callback(null, r.data), (err) => callback && callback(err, null))
             .catch((error) => {
             if (error.statusCode >= 500 && retries < 5) {
-                return new Promise(r => {
+                return new Promise((r) => {
                     setTimeout(() => {
                         r();
                     }, 300);
@@ -154,8 +151,7 @@ class Front {
             const frontError = new FrontError(error);
             frontError.message += ` at ${url} with body ${JSON.stringify(body)}`;
             throw frontError;
-        })
-            .then(r => callback && callback(null, r), err => callback && callback(err, null));
+        });
     }
     formatPath(path, data = {}) {
         let newPath = path;
@@ -166,7 +162,7 @@ class Front {
             }
         };
         reSearch(/<(.*?)>/g, (mandatoryTags) => {
-            _.map(mandatoryTags, tag => {
+            _.map(mandatoryTags, (tag) => {
                 const tagName = tag.substring(1, tag.length - 1);
                 if (!data[tagName]) {
                     throw new Error(`Tag ${tag} not found in parameter data`);
@@ -182,7 +178,7 @@ class Front {
             const tags = trimmedTags.substring(1, trimmedTags.length - 1).split(":");
             const queryTags = {};
             newPath = newPath.replace(trimmedTags, "");
-            _.each(tags, tag => {
+            _.each(tags, (tag) => {
                 if (tag !== "q" && data[tag]) {
                     queryTags[tag] = data[tag];
                 }
@@ -214,7 +210,7 @@ class FrontError extends typed_error_1.TypedError {
         super(error);
         const frontError = error.error._error;
         if (frontError) {
-            _.each(["status", "title", "message", "details"], key => {
+            _.each(["status", "title", "message", "details"], (key) => {
                 if (frontError[key]) {
                     this[key] = frontError[key];
                 }
