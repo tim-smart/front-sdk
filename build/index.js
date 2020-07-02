@@ -137,7 +137,12 @@ class Front {
                 Authorization: `Bearer ${this.apiKey}`,
             }, method: details.method, url }, mixin);
         return axios_1.default(requestOpts)
-            .then((r) => callback && callback(null, r.data), (err) => callback && callback(err, null))
+            .then((r) => {
+            if (callback) {
+                callback(null, r.data);
+            }
+            return r.data;
+        }, (err) => callback && callback(err, null))
             .catch((error) => {
             if (error.statusCode >= 500 && retries < 5) {
                 return new Promise((r) => {
