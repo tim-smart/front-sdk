@@ -452,7 +452,12 @@ export class Front {
     // Make the request.
     return axios(requestOpts)
       .then(
-        (r) => callback && callback(null, r.data),
+        (r) => {
+          if (callback) {
+            callback(null, r.data);
+          }
+          return r.data;
+        },
         (err) => callback && callback(err, null),
       )
       .catch((error: any) => {
